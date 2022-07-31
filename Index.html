@@ -1,6 +1,95 @@
 <html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages. abcd sadasd </p>
+<head>
+    <title>2017 Car Fuel Analysis</title>
+</head>
+<script src='https://d3js.org/d3.v5.min.js'></script>
+<style> circle {fill: lightblue; stroke: black;} </style>
+<body onload="init()">
+<h1>2017 Car Fuel Analysis</h1>
+<svg width=300 height=300>
+</svg>
+
+<p>Please select fuel type to see filtered results </p>
+
+<div>
+    <input type="checkbox" class="checkbox1" value="Gasoline" checked><label>Gasoline</label>
+    <input type="checkbox" class="checkbox2" value="Diesel" checked><label>Diesel</label>
+    <input type="checkbox" class="checkbox3" value="Electricity" checked><label>Electricity</label>
+</div>
+
+
+<script>
+async function init(){
+    const data = await d3.csv("https://flunky.github.io/cars2017.csv")
+    var margin = 50
+    var lx = d3.scaleLog().domain([10,150]).range([0,200]);
+    var ly = d3.scaleLog().domain([10,150]).range([200,0]);  
+    var color = d3.scaleOrdinal()
+      .domain(["Gasoline", "Diesel", "Electricity" ])
+      .range([ "#8FD175", "#402D54", "#D18975"])
+
+    d3.select('svg')
+    .append("g")
+    .attr("transform", "translate("+margin+","+margin+")")
+    .selectAll().data(data).enter().append('circle')
+    .attr("cx", function(d,i) {return lx(d.AverageCityMPG);})
+    .attr("cy", function(d,i) {return ly(d.AverageHighwayMPG);})
+    .attr("r", function(d,i) {return (Number.parseInt(d.EngineCylinders) + 2);})
+    .attr("class", function(d,i) {return d.Fuel;})
+    .style("fill", function(d){ return color(d.Fuel)})
+    d3.select('svg').append('g').attr("transform", "translate("+margin+","+margin+")").call(d3.axisLeft(ly).tickValues([10,20,50,100]).tickFormat(d3.format("s")));
+    d3.select('svg').append('g').attr("transform", "translate("+margin+","+(200+margin)+")").call(d3.axisBottom(lx).tickValues([10,20,50,100]).tickFormat(d3.format("s")));
+
+
+
+
+    /*
+    function gas(){
+    gas_checkbox = d3.select('checkbox1'); 
+    if (gas_checkbox.property("checked")) {
+        svg.selectAll('circle').transition().duration(3000).style("opacity", 0).attr("r", 0)}
+    }; 
+    
+    d3.selectAll("checkbox1").on("change",gas);
+*/ 
+}
+
+var tooltip = d3.select('svg')
+    .append("div")
+    .style ("position", "absolute")
+    .style ("visibility", "hidden")
+    .text ("i'm a circle"); 
+
+d3.selectAll("circle")
+.on("mouseover", function(){return tooltip.style("visibility", "visible");})
+    //.on("mousemove", function(){return tooltip.style("top", (event.pageY-800)+"px").style("left",(event.pageX-800)+"px");})
+.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
+
+
+
+/*function update(){
+
+    d3.selectAll(".checkbox").each(function(d){
+    cb = d3.select(this);
+    grp = cb.property("value")
+
+    if(cb.property("checked")){
+    // svg.selectAll("."+grp).transition().duration(1000).style("opacity", 1).attr("r", function(d){ return (Number.parseInt(d.EngineCylinders) + 2) })
+    svg.selectAll('circle').transition().duration(1000).style("opacity", 1).attr("r", function(d){ return (Number.parseInt(d.EngineCylinders) + 2) })
+
+    }
+
+    else{
+    svg.selectAll('circle').transition().duration(1000).style("opacity", 0).attr("r", 0)
+    }
+})
+}
+*/ 
+
+
+
+</script>
+
 </body>
 </html>
